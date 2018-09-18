@@ -14,7 +14,7 @@ function displayResults(scrapedData) {
   });
 }
 
-$.getJSON("/all", function(data) {
+$.getJSON("/all", function(test) {
   // Call our function to generate a table body
-  displayResults(data);
+  displayResults(test);
 });

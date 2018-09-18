@@ -3,6 +3,7 @@ var express = require("express");
 var mongojs = require("mongojs");
 // var bodyParser = require("body-parser");
 // var exphbs = require("express-handlebars");
+
 // Require request and cheerio. This makes the scraping possible
 var request = require("request");
 var cheerio = require("cheerio");
@@ -29,6 +30,7 @@ db.on("error", function(error) {
   console.log("Database Error:", error);
 });
 
+// --------------
 // Main route (simple Hello World Message)
 app.get("/", function(req, res) {
   res.send("Hello world");
