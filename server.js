@@ -1,86 +1,58 @@
 // Dependencies
 var express = require("express");
-var mongojs = require("mongojs");
-// var bodyParser = require("body-parser");
-// var exphbs = require("express-handlebars");
-
-// Require request and cheerio. This makes the scraping possible
+var bodyParser = require("body-parser");
+var mongoose = require("mongoose");
+var exphbs = require("express-handlebars");
+// Requiring Comment and Article models
+var Comment = require("./models/Comment.js");
+var Article = require("./models/Article.js");
+// Requiring routing controllers
+var htmlRouter = require("./controllers/html-routes.js");
+var articleRouter = require("./controllers/article-routes.js");
+// Scraping tools
 var request = require("request");
 var cheerio = require("cheerio");
-
-// Mongoose
-// const mongoose = require('mongoose');
-// mongoose.connect('mongodb://localhost/my_database');
+// Set mongoose to leverage built in JavaScript ES6 Promises
+mongoose.Promise = Promise;
 
 // Initialize Express
+var port = process.env.PORT || 3000;
 var app = express();
-// app.use(bodyParser.json());
 
-// Handlebars
-// app.engine("handlebars", exphbs({ defaultLayout: "main" }));
-// app.set("view engine", "handlebars");
+// Use body parser with the app
+app.use(
+  bodyParser.urlencoded({
+    extended: false
+  })
+);
 
-// Database configuration
-var databaseUrl = "scraper";
-var collections = ["scrapedData"];
+// Initialize Handlebars
+app.engine("handlebars", exphbs({ defaultLayout: "main" }));
+app.set("view engine", "handlebars");
 
-// Hook mongojs configuration to the db variable
-var db = mongojs(databaseUrl, collections);
+// Routing
+app.use("/", htmlRouter);
+app.use("/", articleRouter);
+
+// Make public a static dir
+app.use(express.static("public"));
+
+// Database configuration with mongoose
+var URI = process.env.MONGODB_URI || "mongodb://localhost:27017/newsscraper";
+mongoose.connect(URI);
+var db = mongoose.connection;
+
+// Show any mongoose errors
 db.on("error", function(error) {
-  console.log("Database Error:", error);
+  console.log("Mongoose Error: ", error);
 });
 
-// --------------
-// Main route (simple Hello World Message)
-app.get("/", function(req, res) {
-  res.send("Hello world");
-});
-
-// Retrieve data from the db
-app.get("/all", function(req, res) {
-  db.scrapedData.find({}, function(error, found) {
-    if (error) {
-      console.log(error);
-    } else {
-      res.json(found);
-    }
-  });
-});
-
-// Scrape data and place into monogodb db
-app.get("/scrape", function(req, res) {
-  request("https://old.reddit.com/r/Fitness/", function(error, reponse, html) {
-    var $ = cheerio.load(html);
-
-    $(".title").each(function(i, element) {
-      var title = $(this)
-        .children("a")
-        .text();
-      var link = $(this)
-        .children("a")
-        .attr("href");
-
-      if (title && link) {
-        db.scrapedData.insert(
-          {
-            title: title,
-            link: link
-          },
-          function(err, inserted) {
-            if (err) {
-              console.log(err);
-            } else {
-              console.log(inserted);
-            }
-          }
-        );
-      }
-    });
-  });
-  res.send("Scrape Complete");
+// Once logged in to the db through mongoose, log a success message
+db.once("open", function() {
+  console.log("Mongoose connection successful.");
 });
 
 // Listen on port 3000
-app.listen(3000, function() {
+app.listen(port, function() {
   console.log("App running on port 3000!");
 });
