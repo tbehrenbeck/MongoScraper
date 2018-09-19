@@ -93,24 +93,4 @@ $(document).ready(function() {
     // Close comment modal
     $(".modal").toggleClass("is-active");
   });
-
-  // Deleting Comments
-  $(document).on("click", ".delete-comment", function() {
-    // delete comment
-  });
-
-  // Removing Saved Articles
-  $(document).on("click", ".unsave-button", function() {
-    // Get article id
-    var articleID = $(this).attr("data-id");
-    console.log(articleID);
-    // Run a POST request to update the article to be saved
-    $.ajax({
-      method: "POST",
-      url: "/unsave/" + articleID,
-      data: {
-        saved: false
-      }
-    });
-  });
 });
