@@ -38,8 +38,14 @@ app.use("/", articleRouter);
 app.use(express.static("public"));
 
 // Database configuration with mongoose
-var URI = process.env.MONGODB_URI || "mongodb://localhost:27017/mongoscraper";
-mongoose.connect(URI);
+var databaseUri = "mongodb://localhost:27017/mongoscraper";
+
+if (process.env.MONGODB_URI) {
+  mongoose.connect(process.env.MONGODB_URI);
+} else {
+  mongoose.connect(databaseUri);
+}
+
 var db = mongoose.connection;
 
 // Show any mongoose errors
