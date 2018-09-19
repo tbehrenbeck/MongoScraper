@@ -18,5 +18,5 @@ npm install
 ### Live Link
 
 ```
-https://git.heroku.com/shielded-sea-59013.git
+https://shielded-sea-59013.herokuapp.com/
 ```
